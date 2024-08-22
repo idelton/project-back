@@ -4,7 +4,7 @@ import { UserBody } from './user.interface';
 
 @Injectable()
 export class UserService {
-  createUsers(body: UserBody): User {
+  createUsers(body: UserBody):User {
       throw new Error("Method not implemented.");
   }
   private users:User[] = [];

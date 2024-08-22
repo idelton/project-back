@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Patch, Post, Put } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User } from "./user.entity";
 import { UserBody } from "./user.interface";
@@ -20,16 +20,16 @@ export class UserController {
     return this.userService.createUsers(body);
   }
 
-  @Put()
-  updateUsers(){
-    return
-  }
+//   @Patch()
+//   updateUsers(){
+//     return
+//   }
    
   
-  @Delete()
-  deleteUsers(){
-    return
-  }
+//   @Delete()
+//   deleteUsers(){
+//     return
+//   }
 }
 
 
