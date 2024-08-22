@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserBody } from './user.interface';
 
@@ -29,5 +29,16 @@ export class UserService {
     
     this.users[user] = { ...this.users[user], ...body}
     return this.users[user] 
-}
+  }
+
+  remove(id: number): User[] {
+    const user = this.users.findIndex((user: User) => user.id === id);
+    if (user === -1) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    this.users.splice(user, 1);
+    return this.users;
+  }
+
+  
 }

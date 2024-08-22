@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, NotFoundException } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Put, NotFoundException, Delete } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 import { Posts } from "./posts.entity";
 import { PostsBody } from "./posts.interface";
@@ -34,6 +34,12 @@ export class PostsController {
         }
         return this.postsService.update(+id, body);
       }
+
+    @Delete(':id')
+    remove(@Param('id') id: string): Posts[] {
+        return this.postsService.remove(+id);
+    }
+
   
 
 }

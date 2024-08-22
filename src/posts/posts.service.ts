@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PostsBody } from './posts.interface';
 import { Posts } from './posts.entity';
 
@@ -31,6 +31,15 @@ export class PostsService {
         this.posts[post] = { ...this.posts[post], ...body}
         return this.posts[post] 
     }
+
+    remove(id: number): Posts[] {
+        const post = this.posts.findIndex((post) => post.id === id);
+        if (post === -1) {
+          throw new NotFoundException(`User with ID ${id} not found`);
+        }
+        this.posts.splice(post, 1);
+        return this.posts;
+      }
  
 
       

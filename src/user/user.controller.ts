@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Param, Put, NotFoundException,} from "@nestjs/common";
+import { Body, Controller, Get, Post, Param, Put, NotFoundException, Delete,} from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User } from "./user.entity";
 import { UserBody } from "./user.interface";
@@ -33,6 +33,11 @@ export class UserController {
       }
       return this.userService.update(+id, body);
     }
+
+  @Delete(':id')
+  remove(@Param('id') id: string): User[] {
+    return this.userService.remove(+id);
+  }
 
 }
 
