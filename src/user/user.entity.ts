@@ -1,5 +1,4 @@
 // Le fichier entity définit un user
-
 export class User {
     id: number
     firstname: string

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Post, Param, Put, NotFoundException,} from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User } from "./user.entity";
 import { UserBody } from "./user.interface";
@@ -6,30 +6,34 @@ import { UserBody } from "./user.interface";
 
 
 
-@Controller("user")
+@Controller("user")//Ecoute sur l'url "/" 
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()//Ecoute sur l'url "/" 
-  getUsers(): User[] {
-    return this.userService.getUsers();
+  @Get()
+  findAll(): User[] {
+    return this.userService.findAll();
+  }
+  @Get(':id')
+  findOne(@Param('id') id:string) {
+    return this.userService.findOne(+id);
   }
 
-  @Post()//Ecoute sur l'url "/" 
+  @Post()
   createUsers(@Body() body:UserBody): User {
     return this.userService.createUsers(body);
   }
 
-//   @Patch()
-//   updateUsers(){
-//     return
-//   }
-   
-  
-//   @Delete()
-//   deleteUsers(){
-//     return
-//   }
+  @Put(':id')
+  update(@Param('id') id: string, @Body() body: UserBody): User {
+
+      const post = this.userService.findOne(+id)
+      if(!post){
+        throw new NotFoundException("User not found")
+      }
+      return this.userService.update(+id, body);
+    }
+
 }
 
 
