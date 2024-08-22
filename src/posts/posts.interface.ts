@@ -1,5 +1,5 @@
-export interface PostsBody{
-    title:string
-    createdDate:Date
-    userId:number
+export interface PostsBody {
+  title: string;
+  createdDate: Date;
+  userId: number;
 }

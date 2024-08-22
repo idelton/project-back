@@ -4,7 +4,7 @@ import { UserService } from './user.service';
 
 @Module({
   imports: [],
-  controllers: [UserController],//Écoute les routes défini dans les controllers déclarés
+  controllers: [UserController], //Écoute les routes défini dans les controllers déclarés
   providers: [UserService],
 })
 export class UserModule {}

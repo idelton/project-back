@@ -9,7 +9,7 @@ export class UserService {
   createUsers(body: UserBody): User {
     const user = new User(body.firstname, body.lastname, body.email);
     this.users.push(user);
-    return user
+    return user;
   }
 
   findAll(): User[] {
@@ -23,12 +23,13 @@ export class UserService {
     return user;
   }
 
-  update(id: number, body: UserBody):User {
-    const user = this.users.findIndex((user: User) => user.id === id)
-    if (!user) // return error
-    
-    this.users[user] = { ...this.users[user], ...body}
-    return this.users[user] 
+  update(id: number, body: UserBody): User {
+    const user = this.users.findIndex((user: User) => user.id === id);
+    if (!user)
+      // return error
+
+      this.users[user] = { ...this.users[user], ...body };
+    return this.users[user];
   }
 
   remove(id: number): User[] {
@@ -39,6 +40,4 @@ export class UserService {
     this.users.splice(user, 1);
     return this.users;
   }
-
-  
 }

@@ -6,7 +6,7 @@ import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [UserModule, PostsModule],
-  controllers: [AppController],//Écoute les routes défini dans les controllers déclarés
+  controllers: [AppController], //Écoute les routes défini dans les controllers déclarés
   providers: [AppService],
 })
 export class AppModule {}
