@@ -1,0 +1,270 @@
+-- CreateTable
+CREATE TABLE `User` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `firstname` VARCHAR(255) NOT NULL,
+    `lastname` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(255) NULL,
+    `refreshToken` VARCHAR(600) NULL,
+    `phone` INTEGER NULL,
+    `email` VARCHAR(255) NOT NULL,
+    `role` ENUM('ADMIN', 'USER', 'VOLUNTEER', 'PROFESSIONAL') NOT NULL,
+    `status` ENUM('PENDING', 'ACTIVE', 'DELETED') NOT NULL DEFAULT 'PENDING',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `addressId` INTEGER NULL,
+    `companyId` INTEGER NULL,
+    `professionId` INTEGER NULL,
+
+    UNIQUE INDEX `User_email_key`(`email`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Address` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `numberStreet` INTEGER NULL,
+    `street` VARCHAR(255) NOT NULL,
+    `city` VARCHAR(100) NOT NULL,
+    `postalCode` VARCHAR(10) NOT NULL,
+    `country` VARCHAR(100) NOT NULL,
+    `latitude` INTEGER NULL,
+    `longitude` INTEGER NULL,
+    `addressComplement` VARCHAR(255) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Company` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(25) NOT NULL,
+    `numberOfEmployees` INTEGER UNSIGNED NOT NULL,
+    `postalCode` VARCHAR(10) NOT NULL,
+    `siret` BIGINT NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Profession` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `job` ENUM('ELECTRICIEN', 'PLOMBIER', 'CHARPENTIER', 'MACON', 'PEINTRE', 'COUVREUR', 'SOUDEUR', 'BRIQUETEUR', 'TECHNICIEN_HVAC', 'POSEUR_DE_SOL', 'CARRELEUR', 'OUVRIER_BETON', 'MONTEUR_D_ECHAFAUDAGES', 'OUVRIER_EN_TOLERIE', 'PLATRIER', 'ISOLATEUR', 'POSEUR_DE_FENETRES', 'ENTREPRENEUR_GENERAL', 'POSEUR_DE_CLOISONS_SECHES', 'VITRIER', 'OUVRIER_PAVAGE', 'FABRICANT_ACIER', 'OPERATEUR_GRUE', 'OPERATEUR_CHARIOT_ELEVATEUR', 'TAILLEUR_DE_PIERRE', 'CHARPENTIER_BOIS', 'MENUISIER', 'PAYSAGISTE', 'OPERATEUR_ENGINS_LOURDS', 'RIGGEUR', 'MECANICIEN_INDUSTRIEL', 'ELECTROMECANICIEN', 'FERRONNIER', 'SERRURIER', 'MONTEUR_DE_RESEAUX_ELECTRIQUES', 'TECHNICIEN_EN_FIBRE_OPTIC', 'TECHNICIEN_DE_MAINTENANCE', 'GRUTIER', 'MENUISIER_ALUMINIUM', 'FOREUR', 'DEMOLISSEUR', 'REPARATEUR_DE_TOITURES') NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `experience` ENUM('JUNIOR', 'INTERMEDIARE', 'SENIOR') NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Message` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `content` VARCHAR(255) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `conversationId` INTEGER NOT NULL,
+    `userId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Conversation` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `subject` VARCHAR(255) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `UserConversations` (
+    `conversationId` INTEGER NOT NULL,
+    `userId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`conversationId`, `userId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `TaskComment` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `content` VARCHAR(255) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `userId` INTEGER NOT NULL,
+    `taskId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Task` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `status` ENUM('IN_PROGRESS', 'COMPLETED', 'CANCELED') NOT NULL,
+    `description` VARCHAR(255) NULL,
+    `houseRoom` VARCHAR(255) NOT NULL,
+    `roomSurface` INTEGER NOT NULL,
+    `type` ENUM('A_REMPLIR') NOT NULL,
+    `projectAnnouncementId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `UserTasks` (
+    `userId` INTEGER NOT NULL,
+    `taskId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`userId`, `taskId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ProjectAnnouncement` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(100) NOT NULL,
+    `description` VARCHAR(255) NOT NULL,
+    `startDate` DATETIME(3) NOT NULL,
+    `endDate` DATETIME(3) NOT NULL,
+    `type` ENUM('CONSTRUCTION_NOUVELLE', 'RENOVATION', 'DEMOLITION', 'EXTENSION', 'AMENAGEMENT_INTERIEUR', 'AMENAGEMENT_EXTERIEUR', 'REFECTION_TOITURE', 'INSTALLATION_ISOLATION', 'REMPLACEMENT_FENETRES', 'REFECTION_FONDATIONS', 'RENOVATION_FACADE', 'TRAVAUX_ELECTRICITE', 'TRAVAUX_PLOMBERIE', 'INSTALLATION_CHAUFFAGE', 'TRAVAUX_PEINTURE', 'RENOVATION_SOL', 'AMENAGEMENT_COMBLES', 'CREATION_PISCINE', 'TRAVAUX_DRAINAGE', 'INSTALLATION_CLIMATISATION', 'TRAVAUX_ASSAINISSEMENT', 'CREATION_TERRASSE', 'JARDINAGE_PAYSAGE', 'POSE_CLOTURE', 'INSTALLATION_ENERGIE_RENOUVELABLE', 'REPARATION_CHARPENTE', 'MISE_EN_CONFORMITE_ACCESSIBILITE', 'AMENAGEMENT_SOUS_SOL', 'TRAVAUX_VRD', 'INSTALLATION_DOMOTIQUE') NOT NULL,
+    `status` ENUM('PENDING_TASK_ANNOUNCEMENT', 'IN_PROGRESS', 'COMPLETED') NOT NULL DEFAULT 'PENDING_TASK_ANNOUNCEMENT',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `userId` INTEGER NOT NULL,
+    `addressId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ProjectAnnouncementComment` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `content` VARCHAR(255) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `announcementId` INTEGER NOT NULL,
+    `userId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Media` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `path` VARCHAR(191) NOT NULL,
+    `mime` VARCHAR(191) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `UserMedia` (
+    `userId` INTEGER NOT NULL,
+    `mediaId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`userId`, `mediaId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `MediaTasks` (
+    `mediaId` INTEGER NOT NULL,
+    `taskId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`mediaId`, `taskId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ProjectAnnouncementMedia` (
+    `projectAnnouncementId` INTEGER NOT NULL,
+    `mediaId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`projectAnnouncementId`, `mediaId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Invoice` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `clientName` VARCHAR(25) NOT NULL,
+    `clientAddress` VARCHAR(255) NOT NULL,
+    `productService` VARCHAR(50) NOT NULL,
+    `quantity` INTEGER NOT NULL,
+    `unitPrice` DOUBLE NOT NULL,
+    `totalHT` DOUBLE NOT NULL,
+    `vat` DOUBLE NOT NULL,
+    `totalTTC` DOUBLE NOT NULL,
+    `userId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `User` ADD CONSTRAINT `User_addressId_fkey` FOREIGN KEY (`addressId`) REFERENCES `Address`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `User` ADD CONSTRAINT `User_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `User` ADD CONSTRAINT `User_professionId_fkey` FOREIGN KEY (`professionId`) REFERENCES `Profession`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Message` ADD CONSTRAINT `Message_conversationId_fkey` FOREIGN KEY (`conversationId`) REFERENCES `Conversation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Message` ADD CONSTRAINT `Message_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `UserConversations` ADD CONSTRAINT `UserConversations_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `UserConversations` ADD CONSTRAINT `UserConversations_conversationId_fkey` FOREIGN KEY (`conversationId`) REFERENCES `Conversation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TaskComment` ADD CONSTRAINT `TaskComment_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TaskComment` ADD CONSTRAINT `TaskComment_taskId_fkey` FOREIGN KEY (`taskId`) REFERENCES `Task`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Task` ADD CONSTRAINT `Task_projectAnnouncementId_fkey` FOREIGN KEY (`projectAnnouncementId`) REFERENCES `ProjectAnnouncement`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `UserTasks` ADD CONSTRAINT `UserTasks_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `UserTasks` ADD CONSTRAINT `UserTasks_taskId_fkey` FOREIGN KEY (`taskId`) REFERENCES `Task`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ProjectAnnouncement` ADD CONSTRAINT `ProjectAnnouncement_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ProjectAnnouncement` ADD CONSTRAINT `ProjectAnnouncement_addressId_fkey` FOREIGN KEY (`addressId`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ProjectAnnouncementComment` ADD CONSTRAINT `ProjectAnnouncementComment_announcementId_fkey` FOREIGN KEY (`announcementId`) REFERENCES `ProjectAnnouncement`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ProjectAnnouncementComment` ADD CONSTRAINT `ProjectAnnouncementComment_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `UserMedia` ADD CONSTRAINT `UserMedia_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `UserMedia` ADD CONSTRAINT `UserMedia_mediaId_fkey` FOREIGN KEY (`mediaId`) REFERENCES `Media`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MediaTasks` ADD CONSTRAINT `MediaTasks_mediaId_fkey` FOREIGN KEY (`mediaId`) REFERENCES `Media`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MediaTasks` ADD CONSTRAINT `MediaTasks_taskId_fkey` FOREIGN KEY (`taskId`) REFERENCES `Task`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ProjectAnnouncementMedia` ADD CONSTRAINT `ProjectAnnouncementMedia_projectAnnouncementId_fkey` FOREIGN KEY (`projectAnnouncementId`) REFERENCES `ProjectAnnouncement`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ProjectAnnouncementMedia` ADD CONSTRAINT `ProjectAnnouncementMedia_mediaId_fkey` FOREIGN KEY (`mediaId`) REFERENCES `Media`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Invoice` ADD CONSTRAINT `Invoice_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

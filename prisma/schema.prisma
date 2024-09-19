@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  firstname    String         @db.VarChar(255)
+  lastname     String
+  password     String?        @db.VarChar(255)
+  refreshToken String?        @db.VarChar(600)
+  phone        Int?
+  email        String         @unique @db.VarChar(255)
+  role         RoleUserEnum
+  status       StatusUserEnum @default(PENDING)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+
+  addressId Int?
+  address   Address? @relation(fields: [addressId], references: [id])
+
+  companyId Int?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  professionId Int?
+  profession   Profession? @relation(fields: [professionId], references: [id])
+
+  messages                    Message[] // relation inverse avec messages
+  conversations               UserConversations[] // Many-to-many conversations
+  taskComments                TaskComment[] // relation inverse avec task comments
+  tasks                       UserTasks[] // Many-to-many relationship with tasks
+  media                       UserMedia[] // Many-to-many relationship with media
+  invoices                    Invoice[] // relation inverse avec invoices
+  projectAnnouncements        ProjectAnnouncement[] // relation inverse avec project announcements
+  projectAnnouncementComments ProjectAnnouncementComment[] // relation inverse avec project announcement comments
+}
+
+enum StatusUserEnum {
+  PENDING
+  ACTIVE
+  DELETED
+}
+
+enum RoleUserEnum {
+  ADMIN
+  USER
+  VOLUNTEER
+  PROFESSIONAL
+}
+
+model Address {
+  id           Int    @id @default(autoincrement())
+  numberStreet Int?
+  street       String @db.VarChar(255)
+  city         String @db.VarChar(100)
+  postalCode   String @db.VarChar(10)
+  country      String @db.VarChar(100)
+  latitude     Int?
+  longitude    Int?
+
+  //stocker lattitude/longitude pour comparer =>  api google map
+  addressComplement String? @db.VarChar(255)
+
+  users                User[] // relation inverse avec users
+  projectAnnouncements ProjectAnnouncement[] // relation inverse avec projectAnnouncements
+}
+
+model Company {
+  id                Int    @id @default(autoincrement())
+  name              String @db.VarChar(25)
+  numberOfEmployees Int    @db.UnsignedInt
+  postalCode        String @db.VarChar(10)
+  siret             BigInt
+
+  users User[] // relation inverse avec users
+}
+
+//TODO faire l'enum métier pour profession
+model Profession {
+  id         Int            @id @default(autoincrement())
+  name       String         @db.VarChar(255)
+  job        JobEnum
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @default(now()) @updatedAt
+  experience ExperienceEnum
+
+  users User[] // relation inverse avec users
+}
+
+enum JobEnum {
+  ELECTRICIEN // Electrician
+  PLOMBIER // Plumber
+  CHARPENTIER // Carpenter
+  MACON // Mason
+  PEINTRE // Painter
+  COUVREUR // Roofer
+  SOUDEUR // Welder
+  BRIQUETEUR // Bricklayer
+  TECHNICIEN_HVAC // HVAC Technician (Chauffage, ventilation, climatisation)
+  POSEUR_DE_SOL // Floor Installer
+  CARRELEUR // Tile Setter
+  OUVRIER_BETON // Concrete Worker
+  MONTEUR_D_ECHAFAUDAGES // Scaffolder
+  OUVRIER_EN_TOLERIE // Sheet Metal Worker
+  PLATRIER // Plasterer
+  ISOLATEUR // Insulation Worker
+  POSEUR_DE_FENETRES // Window Installer
+  ENTREPRENEUR_GENERAL // General Contractor
+  POSEUR_DE_CLOISONS_SECHES // Drywall Installer
+  VITRIER // Glass Installer
+  OUVRIER_PAVAGE // Paving Worker
+  FABRICANT_ACIER // Steel Fabricator
+  OPERATEUR_GRUE // Crane Operator
+  OPERATEUR_CHARIOT_ELEVATEUR // Forklift Operator
+  TAILLEUR_DE_PIERRE // Stonemason
+  CHARPENTIER_BOIS // Framer
+  MENUISIER // Cabinetmaker
+  PAYSAGISTE // Landscaper
+  OPERATEUR_ENGINS_LOURDS // Heavy Equipment Operator
+  RIGGEUR // Rigger
+  MECANICIEN_INDUSTRIEL // Millwright
+  ELECTROMECANICIEN // Electromechanic
+  FERRONNIER // Blacksmith
+  SERRURIER // Locksmith
+  MONTEUR_DE_RESEAUX_ELECTRIQUES // Electrical Network Installer
+  TECHNICIEN_EN_FIBRE_OPTIC // Fiber Optic Technician
+  TECHNICIEN_DE_MAINTENANCE // Maintenance Technician
+  GRUTIER // Tower Crane Operator
+  MENUISIER_ALUMINIUM // Aluminium Carpenter
+  FOREUR // Driller
+  DEMOLISSEUR // Demolition Worker
+  REPARATEUR_DE_TOITURES // Roof Repairer
+}
+
+//guider côté front (0-2 ans junior...)
+enum ExperienceEnum {
+  JUNIOR
+  INTERMEDIARE
+  SENIOR
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  conversationId Int
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model Conversation {
+  id        Int      @id @default(autoincrement())
+  subject   String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  messages Message[] // relation inverse avec messages
+  users    UserConversations[] // Many-to-many avec users
+}
+
+model UserConversations {
+  conversationId Int
+  userId         Int
+
+  user         User         @relation(fields: [userId], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+
+  @@id([conversationId, userId]) // nouvelle primary key
+}
+
+model TaskComment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id])
+}
+
+//créer une autre table houseRoom + roomSurface à relié avec Task
+model Task {
+  id                    Int                 @id @default(autoincrement())
+  name                  String              @db.VarChar(255)
+  status                TaskStatusEnum
+  description           String?             @db.VarChar(255)
+  houseRoom             String              @db.VarChar(255)
+  roomSurface           Int
+  type                  TaskTypeEnum
+  projectAnnouncementId Int
+  projectAnnouncement   ProjectAnnouncement @relation(fields: [projectAnnouncementId], references: [id])
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  taskComments TaskComment[] // relation inverse avec taskComments
+  users        UserTasks[] // Many-to-many avec users
+  media        MediaTasks[] // Many-to-many avec media
+}
+
+enum TaskStatusEnum {
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum TaskTypeEnum {
+  A_REMPLIR
+}
+
+model UserTasks {
+  userId Int
+  taskId Int
+
+  user User @relation(fields: [userId], references: [id])
+  task Task @relation(fields: [taskId], references: [id])
+
+  @@id([userId, taskId]) // nouvelle primary key
+}
+
+model ProjectAnnouncement {
+  id          Int                    @id @default(autoincrement())
+  title       String                 @db.VarChar(100)
+  description String                 @db.VarChar(255)
+  startDate   DateTime
+  endDate     DateTime
+  type        AnnouncementTypeEnum
+  status      AnnouncementStatusEnum @default(PENDING_TASK_ANNOUNCEMENT)
+  tasks       Task[] // relation inverse avec tasks
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  addressId Int
+  address   Address @relation(fields: [addressId], references: [id])
+
+  projectAnnouncementComments ProjectAnnouncementComment[] // relation inverse avec projectAnnouncementComments
+
+  media ProjectAnnouncementMedia[] // Many-to-many avec Media via la table ProjectAnnouncementMedia
+}
+
+enum AnnouncementStatusEnum {
+  PENDING_TASK_ANNOUNCEMENT
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum AnnouncementTypeEnum {
+  CONSTRUCTION_NOUVELLE
+  RENOVATION
+  DEMOLITION
+  EXTENSION
+  AMENAGEMENT_INTERIEUR
+  AMENAGEMENT_EXTERIEUR
+  REFECTION_TOITURE
+  INSTALLATION_ISOLATION
+  REMPLACEMENT_FENETRES
+  REFECTION_FONDATIONS
+  RENOVATION_FACADE
+  TRAVAUX_ELECTRICITE
+  TRAVAUX_PLOMBERIE
+  INSTALLATION_CHAUFFAGE
+  TRAVAUX_PEINTURE
+  RENOVATION_SOL
+  AMENAGEMENT_COMBLES
+  CREATION_PISCINE
+  TRAVAUX_DRAINAGE
+  INSTALLATION_CLIMATISATION
+  TRAVAUX_ASSAINISSEMENT
+  CREATION_TERRASSE
+  JARDINAGE_PAYSAGE
+  POSE_CLOTURE
+  INSTALLATION_ENERGIE_RENOUVELABLE
+  REPARATION_CHARPENTE
+  MISE_EN_CONFORMITE_ACCESSIBILITE
+  AMENAGEMENT_SOUS_SOL
+  TRAVAUX_VRD
+  INSTALLATION_DOMOTIQUE
+}
+
+model ProjectAnnouncementComment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  announcementId Int
+  announcement   ProjectAnnouncement @relation(fields: [announcementId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+//soit stocker chemin image (string)dans bdd et image dans disque dur serveur  <= path + mime(type)
+//soit stocker media (blob) dans bdd  X
+model Media {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(255)
+  path String
+  mime String
+
+  users                UserMedia[] // Many-to-many avec users
+  tasks                MediaTasks[] // Many-to-many avec tasks
+  projectAnnouncements ProjectAnnouncementMedia[] // Many-to-many avec ProjectAnnouncement via ProjectAnnouncementMedia
+}
+
+model UserMedia {
+  userId  Int
+  mediaId Int
+
+  user  User  @relation(fields: [userId], references: [id])
+  media Media @relation(fields: [mediaId], references: [id])
+
+  @@id([userId, mediaId]) // nouvelle primary key
+}
+
+model MediaTasks {
+  mediaId Int
+  taskId  Int
+
+  media Media @relation(fields: [mediaId], references: [id])
+  task  Task  @relation(fields: [taskId], references: [id])
+
+  @@id([mediaId, taskId]) // nouvelle primary key
+}
+
+model ProjectAnnouncementMedia {
+  projectAnnouncementId Int
+  mediaId               Int
+
+  projectAnnouncement ProjectAnnouncement @relation(fields: [projectAnnouncementId], references: [id])
+  media               Media               @relation(fields: [mediaId], references: [id])
+
+  @@id([projectAnnouncementId, mediaId]) // nouvelle primary key
+}
+
+//V2, a revoir
+//created à bouger 
+//float pour les virgules potentielles 
+//table facture + table ligne facture
+model Invoice {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now())
+  clientName     String   @db.VarChar(25)
+  clientAddress  String   @db.VarChar(255)
+  productService String   @db.VarChar(50)
+  quantity       Int
+  unitPrice      Float
+  totalHT        Float
+  vat            Float
+  totalTTC       Float
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
